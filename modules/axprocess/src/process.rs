@@ -9,7 +9,7 @@ use axfs::api::{FileIO, OpenFlags};
 use axhal::arch::{write_page_table_root, TrapFrame};
 use axhal::mem::{phys_to_virt, VirtAddr};
 use axhal::KERNEL_PROCESS_ID;
-use axlog::{debug, error};
+use axlog::{debug, error, info};
 use axmem::MemorySet;
 use axsync::Mutex;
 use axtask::{current, AxTaskRef, TaskId, TaskInner, RUN_QUEUE};
@@ -148,6 +148,7 @@ impl Process {
     }
     /// 根据给定参数创建一个新的进程，作为应用程序初始进程
     pub fn init(args: Vec<String>) -> AxResult<AxTaskRef> {
+        info!("into init func");
         let path = args[0].clone();
         let mut memory_set = MemorySet::new_with_kernel_mapped();
         let page_table_token = memory_set.page_table_token();

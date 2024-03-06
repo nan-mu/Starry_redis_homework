@@ -53,6 +53,7 @@ pub fn syscall_bind(fd: usize, addr: *const u8, _addr_len: usize) -> SyscallResu
     };
 
     let addr = unsafe { socket_address_from(addr) };
+    info!("!@# bind addr: {:?}", addr);
 
     let Some(socket) = file.as_any().downcast_ref::<Socket>() else {
         return Err(SyscallError::ENOTSOCK);
@@ -103,6 +104,7 @@ pub fn syscall_accept4(
     match socket.accept() {
         Ok((mut s, addr)) => {
             let _ = unsafe { socket_address_to(addr, addr_buf, addr_len) };
+            info!("!@# accept addr: {addr:?}");
 
             let mut fd_table = curr.fd_manager.fd_table.lock();
             let Ok(new_fd) = curr.alloc_fd(&mut fd_table) else {
@@ -266,6 +268,7 @@ pub fn syscall_sendto(
     } else {
         None
     };
+    info!("!@# addr: {addr:?}");
     let inner = socket.inner.lock();
     let send_result = match &*inner {
         SocketInner::Udp(s) => {
@@ -353,7 +356,7 @@ pub fn syscall_recvfrom(
         return Err(SyscallError::EFAULT);
     }
     let buf = unsafe { from_raw_parts_mut(buf, len) };
-    info!("recv addr: {:?}", socket.name().unwrap());
+    info!("!@# recv addr: {:?}", socket.name().unwrap());
     match socket.recv_from(buf) {
         Ok((len, addr)) => {
             info!("socket {fd} recv {len} bytes from {addr:?}");

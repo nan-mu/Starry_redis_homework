@@ -1,8 +1,12 @@
 use axhal::{arch::TrapFrame, mem::VirtAddr, paging::MappingFlags};
+// use axlog::info;
 
 use crate::syscall::syscall;
 
-struct TrapHandlerImpl;
+struct TrapHandlerImpl {
+    // count: usize,
+    // port: [(u16, u16); 999],
+}
 
 #[crate_interface::impl_interface]
 impl axhal::trap::TrapHandler for TrapHandlerImpl {
@@ -22,6 +26,16 @@ impl axhal::trap::TrapHandler for TrapHandlerImpl {
     fn handle_syscall(syscall_id: usize, args: [usize; 6]) -> isize {
         axprocess::time_stat_from_user_to_kernel();
         let ans = syscall(syscall_id, args);
+        // if syscall_id == 203 {
+        //     info!("!@# catch connect: {}", unsafe {
+        //         syscall_net::socket::socket_address_from(args[1] as *const u8)
+        //     });
+        // }
+        // if syscall_id == 208 {
+        //     info!("!@# catch SETSOCKOPT: {:?}", unsafe {
+        //         from_raw_parts(args[3] as *const u8, args[4] as u32 as usize)
+        //     });
+        // }
         axprocess::time_stat_from_kernel_to_user();
         // current().update_timer();
         ans

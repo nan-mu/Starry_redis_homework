@@ -387,6 +387,7 @@ pub const IPERF_TESTCASES: &[&str] = &[
     "iperf3 -c 127.0.0.1 -p 5001 -t 2 -i 0 -u -R -b 1000G", // reverse udp
 ];
 /// 运行测试时的状态机，记录测试结果与内容
+#[derive(Debug)]
 struct TestResult {
     sum: usize,
     accepted: usize,
@@ -419,6 +420,7 @@ impl TestResult {
                 info!(" --------------- test passed --------------- ");
                 self.accepted += 1;
                 self.now_testcase.take();
+                info!("{:?}", self);
             }
             _ => {
                 info!(
@@ -632,7 +634,6 @@ pub fn run_testcases(case: &'static str) {
             // } else {
             //     testcase[0].clone()
             // };
-
             let main_task = axprocess::Process::init(args).unwrap();
             let now_process_id = main_task.get_process_id() as isize;
             TESTRESULT.lock().load(&(testcase));

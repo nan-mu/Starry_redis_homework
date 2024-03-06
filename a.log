@@ -1,0 +1,8 @@
+recv addr: Endpoint { addr: Ipv4(Address([10, 0, 2, 15])), port: 49152 }
+bind addr: Endpoint { addr: Ipv4(Address([0, 0, 0, 0])), port: 6380 }?
+recv addr: Endpoint { addr: Ipv4(Address([10, 0, 2, 15])), port: 49153 }
+accept addr: Endpoint { addr: Ipv4(Address([10, 0, 2, 2])), port: 34650 }
+recv addr: Endpoint { addr: Ipv4(Address([10, 0, 2, 15])), port: 49154 }
+accept addr: Endpoint { addr: Ipv4(Address([10, 0, 2, 2])), port: 47954 }
+recv addr: Endpoint { addr: Ipv4(Address([10, 0, 2, 15])), port: 49155 }
+accept addr: Endpoint { addr: Ipv4(Address([10, 0, 2, 2])), port: 47964 }

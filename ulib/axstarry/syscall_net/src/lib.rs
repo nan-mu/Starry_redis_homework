@@ -4,7 +4,7 @@ use syscall_utils::SyscallResult;
 mod imp;
 
 #[allow(unused)]
-mod socket;
+pub mod socket;
 use imp::*;
 mod net_syscall_id;
 pub use net_syscall_id::NetSyscallId::{self, *};
