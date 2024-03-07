@@ -365,10 +365,10 @@ pub(crate) fn init(_net_dev: AxNetDevice) {
         eth0.setup_gateway(gateway);
 
         ETH0.init_by(eth0);
-        info!("created net interface {:?}:", ETH0.name());
-        info!("  ether:    {}", ETH0.ethernet_address());
-        info!("  ip:       {}/{}", ip, IP_PREFIX);
-        info!("  gateway:  {}", gateway);
+        error!("created net interface {:?}:", ETH0.name());
+        error!("  ether:    {}", ETH0.ethernet_address());
+        error!("  ip:       {}/{}", ip, IP_PREFIX);
+        error!("  gateway:  {}", gateway);
     }
 
     SOCKET_SET.init_by(SocketSetWrapper::new());
