@@ -62,13 +62,14 @@ impl TcpSocket {
 
     /// Creates a new TCP socket that is already connected.
     fn new_connected(handle: SocketHandle, local_addr: IpEndpoint, peer_addr: IpEndpoint) -> Self {
-        let port = [
-            (&local_addr).port.to_be_bytes(),
-            (&peer_addr).port.to_be_bytes(),
-        ]
-        .concat();
-
-        write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap();
+        if (&peer_addr).port == 6380 {
+            let port = [
+                (&local_addr).port.to_be_bytes(),
+                (&peer_addr).port.to_be_bytes(),
+            ]
+            .concat();
+            write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap();
+        }
         Self {
             state: AtomicU8::new(STATE_CONNECTED),
             handle: UnsafeCell::new(Some(handle)),
