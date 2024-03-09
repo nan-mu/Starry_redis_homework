@@ -3,6 +3,7 @@ use core::net::SocketAddr;
 use core::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 
 use axerrno::{ax_err, ax_err_type, AxError, AxResult};
+use axfs::api::{read, write};
 use axhal::time::current_ticks;
 use axio::{PollState, Read, Write};
 use axsync::Mutex;
@@ -60,11 +61,14 @@ impl TcpSocket {
     }
 
     /// Creates a new TCP socket that is already connected.
-    const fn new_connected(
-        handle: SocketHandle,
-        local_addr: IpEndpoint,
-        peer_addr: IpEndpoint,
-    ) -> Self {
+    fn new_connected(handle: SocketHandle, local_addr: IpEndpoint, peer_addr: IpEndpoint) -> Self {
+        let port = [
+            (&local_addr).port.to_be_bytes(),
+            (&peer_addr).port.to_be_bytes(),
+        ]
+        .concat();
+
+        write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap();
         Self {
             state: AtomicU8::new(STATE_CONNECTED),
             handle: UnsafeCell::new(Some(handle)),
@@ -147,7 +151,7 @@ impl TcpSocket {
                                 ax_err!(ConnectionRefused, "socket connect() failed")
                             }
                         })?;
-                    Ok((
+                    AxResult::Ok((
                         socket.local_endpoint().unwrap(),
                         socket.remote_endpoint().unwrap(),
                     ))
