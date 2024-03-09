@@ -5,7 +5,6 @@ use core::slice::{from_raw_parts, from_raw_parts_mut};
 
 use alloc::sync::Arc;
 use axerrno::AxError;
-use axfs::api::{read, write};
 use axlog::{debug, error, info, warn};
 use axnet::{into_core_sockaddr, IpAddr, SocketAddr};
 use axprocess::current_process;

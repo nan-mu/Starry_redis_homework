@@ -558,12 +558,12 @@ impl Socket {
         match &*inner {
             SocketInner::Tcp(s) => {
                 let port = [
-                    addr.port.to_be_bytes(),
                     s.local_addr().unwrap().port().to_be_bytes(),
+                    addr.port.to_be_bytes(),
                 ]
                 .concat();
                 write("/socketlog", [read("/socketlog").unwrap(), port].concat());
-                error!("catch tcp: {}", s.local_addr().unwrap().port());
+                // error!("catch tcp: {}", s.local_addr().unwrap().port());
                 s.connect(into_core_sockaddr(addr))
             }
             SocketInner::Udp(s) => {

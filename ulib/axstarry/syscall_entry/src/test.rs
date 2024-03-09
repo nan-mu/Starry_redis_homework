@@ -449,19 +449,19 @@ impl TestResult {
             let [local, remote] = chunk else {
                 panic!("not enough bytes");
             };
-            if local != 0 {
+            if local != &0 {
                 error!("tcp link src_port:{local} dst_port:{remote}")
             };
         }
-        info!(
+        error!(
             " --------------- all test ended, passed {} / {} --------------- ",
             self.accepted, self.sum
         );
-        info!(" --------------- failed tests: --------------- ");
+        error!(" --------------- failed tests: --------------- ");
         for test in &self.failed_testcases {
             info!("{:?}", test);
         }
-        info!(" --------------- end --------------- ");
+        error!(" --------------- end --------------- ");
     }
 }
 
