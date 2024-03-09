@@ -1,62 +1,67 @@
-diff --git a/packets.pcap b/packets.pcap
-index 1e8609e..4b6d71c 100644
-Binary files a/packets.pcap and b/packets.pcap differ
-diff --git a/ulib/axstarry/syscall_entry/src/test.rs b/ulib/axstarry/syscall_entry/src/test.rs
-index 7dec80b..70431fc 100644
---- a/ulib/axstarry/syscall_entry/src/test.rs
-+++ b/ulib/axstarry/syscall_entry/src/test.rs
-@@ -449,19 +449,19 @@ impl TestResult {
-             let [local, remote] = chunk else {
-                 panic!("not enough bytes");
-             };
--            if local != 0 {
-+            if local != &0 {
-                 error!("tcp link src_port:{local} dst_port:{remote}")
-             };
-         }
--        info!(
-+        error!(
-             " --------------- all test ended, passed {} / {} --------------- ",
-             self.accepted, self.sum
-         );
--        info!(" --------------- failed tests: --------------- ");
-+        error!(" --------------- failed tests: --------------- ");
-         for test in &self.failed_testcases {
-             info!("{:?}", test);
-         }
--        info!(" --------------- end --------------- ");
-+        error!(" --------------- end --------------- ");
-     }
- }
- 
-diff --git a/ulib/axstarry/syscall_net/src/imp.rs b/ulib/axstarry/syscall_net/src/imp.rs
-index 3c1d68c..015a35c 100644
---- a/ulib/axstarry/syscall_net/src/imp.rs
-+++ b/ulib/axstarry/syscall_net/src/imp.rs
-@@ -5,7 +5,6 @@ use core::slice::{from_raw_parts, from_raw_parts_mut};
- 
- use alloc::sync::Arc;
- use axerrno::AxError;
--use axfs::api::{read, write};
- use axlog::{debug, error, info, warn};
- use axnet::{into_core_sockaddr, IpAddr, SocketAddr};
- use axprocess::current_process;
-diff --git a/ulib/axstarry/syscall_net/src/socket.rs b/ulib/axstarry/syscall_net/src/socket.rs
-index 6d3d0b8..396c86b 100644
---- a/ulib/axstarry/syscall_net/src/socket.rs
-+++ b/ulib/axstarry/syscall_net/src/socket.rs
-@@ -558,12 +558,12 @@ impl Socket {
-         match &*inner {
-             SocketInner::Tcp(s) => {
-                 let port = [
--                    addr.port.to_be_bytes(),
-                     s.local_addr().unwrap().port().to_be_bytes(),
-+                    addr.port.to_be_bytes(),
-                 ]
-                 .concat();
-                 write("/socketlog", [read("/socketlog").unwrap(), port].concat());
--                error!("catch tcp: {}", s.local_addr().unwrap().port());
-+                // error!("catch tcp: {}", s.local_addr().unwrap().port());
-                 s.connect(into_core_sockaddr(addr))
-             }
-             SocketInner::Udp(s) => {
+diff --git a/yezhengnan-lesson3.patch b/yezhengnan-lesson3.patch
+index 7c680d3..e69de29 100644
+--- a/yezhengnan-lesson3.patch
++++ b/yezhengnan-lesson3.patch
+@@ -1,62 +0,0 @@
+-diff --git a/packets.pcap b/packets.pcap
+-index 1e8609e..4b6d71c 100644
+-Binary files a/packets.pcap and b/packets.pcap differ
+-diff --git a/ulib/axstarry/syscall_entry/src/test.rs b/ulib/axstarry/syscall_entry/src/test.rs
+-index 7dec80b..70431fc 100644
+---- a/ulib/axstarry/syscall_entry/src/test.rs
+-+++ b/ulib/axstarry/syscall_entry/src/test.rs
+-@@ -449,19 +449,19 @@ impl TestResult {
+-             let [local, remote] = chunk else {
+-                 panic!("not enough bytes");
+-             };
+--            if local != 0 {
+-+            if local != &0 {
+-                 error!("tcp link src_port:{local} dst_port:{remote}")
+-             };
+-         }
+--        info!(
+-+        error!(
+-             " --------------- all test ended, passed {} / {} --------------- ",
+-             self.accepted, self.sum
+-         );
+--        info!(" --------------- failed tests: --------------- ");
+-+        error!(" --------------- failed tests: --------------- ");
+-         for test in &self.failed_testcases {
+-             info!("{:?}", test);
+-         }
+--        info!(" --------------- end --------------- ");
+-+        error!(" --------------- end --------------- ");
+-     }
+- }
+- 
+-diff --git a/ulib/axstarry/syscall_net/src/imp.rs b/ulib/axstarry/syscall_net/src/imp.rs
+-index 3c1d68c..015a35c 100644
+---- a/ulib/axstarry/syscall_net/src/imp.rs
+-+++ b/ulib/axstarry/syscall_net/src/imp.rs
+-@@ -5,7 +5,6 @@ use core::slice::{from_raw_parts, from_raw_parts_mut};
+- 
+- use alloc::sync::Arc;
+- use axerrno::AxError;
+--use axfs::api::{read, write};
+- use axlog::{debug, error, info, warn};
+- use axnet::{into_core_sockaddr, IpAddr, SocketAddr};
+- use axprocess::current_process;
+-diff --git a/ulib/axstarry/syscall_net/src/socket.rs b/ulib/axstarry/syscall_net/src/socket.rs
+-index 6d3d0b8..396c86b 100644
+---- a/ulib/axstarry/syscall_net/src/socket.rs
+-+++ b/ulib/axstarry/syscall_net/src/socket.rs
+-@@ -558,12 +558,12 @@ impl Socket {
+-         match &*inner {
+-             SocketInner::Tcp(s) => {
+-                 let port = [
+--                    addr.port.to_be_bytes(),
+-                     s.local_addr().unwrap().port().to_be_bytes(),
+-+                    addr.port.to_be_bytes(),
+-                 ]
+-                 .concat();
+-                 write("/socketlog", [read("/socketlog").unwrap(), port].concat());
+--                error!("catch tcp: {}", s.local_addr().unwrap().port());
+-+                // error!("catch tcp: {}", s.local_addr().unwrap().port());
+-                 s.connect(into_core_sockaddr(addr))
+-             }
+-             SocketInner::Udp(s) => {
