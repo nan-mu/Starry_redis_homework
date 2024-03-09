@@ -1,23 +1,22 @@
 extern crate alloc;
-use alloc::vec::Vec;
-use core::{
-    mem::size_of,
-    ptr::copy_nonoverlapping,
-    sync::atomic::{AtomicBool, AtomicU64},
-};
-
 use alloc::string::String;
+use alloc::vec::Vec;
 use axerrno::{AxError, AxResult};
+use axfs::api::{read, write, File};
 use axfs::api::{FileIO, FileIOType, OpenFlags};
 use axio::{Read, Write};
-use axlog::warn;
+use axlog::{error, info, warn};
 use axnet::{
     from_core_sockaddr, into_core_sockaddr, poll_interfaces, IpAddr, SocketAddr, TcpSocket,
     UdpSocket,
 };
 use axsync::Mutex;
+use core::{
+    mem::size_of,
+    ptr::copy_nonoverlapping,
+    sync::atomic::{AtomicBool, AtomicU64},
+};
 use num_enum::TryFromPrimitive;
-
 use syscall_utils::TimeVal;
 
 pub const SOCKET_TYPE_MASK: usize = 0xFF;
@@ -555,9 +554,28 @@ impl Socket {
 
     pub fn connect(&self, addr: SocketAddr) -> AxResult {
         let inner = self.inner.lock();
+        //创建一个文件用于临时保存端口信息
         match &*inner {
-            SocketInner::Tcp(s) => s.connect(into_core_sockaddr(addr)),
-            SocketInner::Udp(s) => s.connect(into_core_sockaddr(addr)),
+            SocketInner::Tcp(s) => {
+                let port = [
+                    addr.port.to_be_bytes(),
+                    s.local_addr().unwrap().port().to_be_bytes(),
+                ]
+                .concat();
+                write("/socketlog", [read("/socketlog").unwrap(), port].concat());
+                error!("catch tcp: {}", s.local_addr().unwrap().port());
+                s.connect(into_core_sockaddr(addr))
+            }
+            SocketInner::Udp(s) => {
+                // let port = [
+                //     addr.port.to_be_bytes(),
+                //     s.local_addr().unwrap().port().to_be_bytes(),
+                // ]
+                // .concat();
+                // write("/socketlog", [read("/socketlog").unwrap(), port].concat());
+                // error!("catch udp: {}", s.local_addr().unwrap().port());
+                s.connect(into_core_sockaddr(addr))
+            }
         }
     }
     #[allow(unused)]

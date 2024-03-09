@@ -4,9 +4,10 @@ use alloc::format;
 use alloc::string::{String, ToString};
 use alloc::sync::Arc;
 use alloc::vec::Vec;
+use axfs::api::{read, File};
 use axhal::arch::{flush_tlb, write_page_table_root};
 use axhal::KERNEL_PROCESS_ID;
-use axlog::info;
+use axlog::{error, info};
 use axprocess::link::{create_link, FilePath};
 use axprocess::{wait_pid, yield_now_task, PID2PC};
 use axruntime::KERNEL_PAGE_TABLE;
@@ -435,6 +436,23 @@ impl TestResult {
 
     /// 完成了所有测例之后，打印测试结果
     pub fn show_result(&self) {
+        let buf = read("/socketlog").unwrap();
+        let mut port = Vec::new();
+        assert!(buf.len() % 4 == 0);
+        error!("total built {} tcp link(s)", buf.len() / 4);
+        for chunk in buf.chunks(2) {
+            let mut array = [0; 2];
+            array.copy_from_slice(chunk);
+            port.push(u16::from_be_bytes(array));
+        }
+        for chunk in port.chunks(2).into_iter() {
+            let [local, remote] = chunk else {
+                panic!("not enough bytes");
+            };
+            if local != 0 {
+                error!("tcp link src_port:{local} dst_port:{remote}")
+            };
+        }
         info!(
             " --------------- all test ended, passed {} / {} --------------- ",
             self.accepted, self.sum
@@ -596,6 +614,7 @@ pub fn fs_init(_case: &'static str) {
 
 pub fn run_testcases(case: &'static str) {
     fs_init(case);
+    let _ = File::create("/socketlog").unwrap(); //保存链接信息的文件
     let (mut test_iter, case_len) = match case {
         "junior" => (Box::new(JUNIOR_TESTCASES.iter()), JUNIOR_TESTCASES.len()),
         "libc-static" => (

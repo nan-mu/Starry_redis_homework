@@ -14,7 +14,14 @@ fd = []
 
 net = ["syscall_fs/net"]
 
-monolithic = ["arceos_api/monolithic", "axfeat/monolithic", "paging", "fs", "multitask", "irq"]
+monolithic = [
+    "arceos_api/monolithic",
+    "axfeat/monolithic",
+    "paging",
+    "fs",
+    "multitask",
+    "irq",
+]
 
 img = ["axruntime/img"]
 
@@ -72,6 +79,7 @@ syscall_task = ["dep:syscall_task"]
 axfeat = { path = "../../../api/axfeat" }
 arceos_api = { path = "../../../api/arceos_api" }
 axlog = { path = "../../../modules/axlog" }
+axfs = { path = "../../../modules/axfs" }
 axruntime = { path = "../../../modules/axruntime" }
 axhal = { path = "../../../modules/axhal" }
 axtask = { path = "../../../modules/axtask" }

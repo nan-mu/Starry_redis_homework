@@ -16,7 +16,7 @@ use axtask::{current, WaitQueue};
 pub struct Mutex<T: ?Sized> {
     wq: WaitQueue,
     owner_id: AtomicU64,
-    data: UnsafeCell<T>,
+    pub data: UnsafeCell<T>,
 }
 
 /// A guard that provides mutable data access.

@@ -80,7 +80,7 @@ impl TcpSocket {
     pub fn local_addr(&self) -> AxResult<SocketAddr> {
         // 为了通过测例，已经`bind`但未`listen`的socket也可以返回地址
         match self.get_state() {
-            STATE_CONNECTED | STATE_LISTENING | STATE_CLOSED => {
+            STATE_CONNECTED | STATE_LISTENING | STATE_CLOSED | 1 | 2 => {
                 Ok(into_core_sockaddr(unsafe { self.local_addr.get().read() }))
             }
             _ => Err(AxError::NotConnected),
@@ -239,7 +239,7 @@ impl TcpSocket {
 
         // SAFETY: `self.local_addr` should be initialized after `bind()`.
         let local_port = unsafe { self.local_addr.get().read().port };
-        warn!("local port is {:?}",local_port);
+        warn!("local port is {:?}", local_port);
         self.block_on(|| {
             let (handle, (local_addr, peer_addr)) = LISTEN_TABLE.accept(local_port)?;
             debug!("TCP socket accepted a new connection {}", peer_addr);
@@ -309,7 +309,7 @@ impl TcpSocket {
         let handle = unsafe { self.handle.get().read().unwrap() };
         self.block_on(|| {
             SOCKET_SET.with_socket_mut::<tcp::Socket, _, _>(handle, |socket| {
-                info!("the recv queue is {:?} now",socket.recv_queue());
+                info!("the recv queue is {:?} now", socket.recv_queue());
                 if socket.recv_queue() > 0 {
                     // data available
                     // TODO: use socket.recv(|buf| {...})
@@ -323,7 +323,7 @@ impl TcpSocket {
                 } else if !socket.may_recv() {
                     // connection closed
                     Ok(0)
-                }  else {
+                } else {
                     // no more data
                     Err(AxError::WouldBlock)
                 }
@@ -601,7 +601,7 @@ impl TcpSocket {
             loop {
                 unsafe {
                     extern "Rust" {
-                        fn current_have_signal() ->bool;
+                        fn current_have_signal() -> bool;
                     }
                     if current_have_signal() {
                         return Err(AxError::Interrupted);

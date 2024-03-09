@@ -4,8 +4,8 @@ use super::socket::*;
 use core::slice::{from_raw_parts, from_raw_parts_mut};
 
 use alloc::sync::Arc;
-
 use axerrno::AxError;
+use axfs::api::{read, write};
 use axlog::{debug, error, info, warn};
 use axnet::{into_core_sockaddr, IpAddr, SocketAddr};
 use axprocess::current_process;
@@ -53,7 +53,6 @@ pub fn syscall_bind(fd: usize, addr: *const u8, _addr_len: usize) -> SyscallResu
     };
 
     let addr = unsafe { socket_address_from(addr) };
-    info!("!@# bind addr: {:?}", addr);
 
     let Some(socket) = file.as_any().downcast_ref::<Socket>() else {
         return Err(SyscallError::ENOTSOCK);
@@ -104,7 +103,6 @@ pub fn syscall_accept4(
     match socket.accept() {
         Ok((mut s, addr)) => {
             let _ = unsafe { socket_address_to(addr, addr_buf, addr_len) };
-            info!("!@# accept addr: {addr:?}");
 
             let mut fd_table = curr.fd_manager.fd_table.lock();
             let Ok(new_fd) = curr.alloc_fd(&mut fd_table) else {
@@ -120,6 +118,17 @@ pub fn syscall_accept4(
             if flags & SOCK_CLOEXEC != 0 {
                 s.close_exec = true;
             }
+
+            // let inner = (&s).inner.lock();
+            // //创建一个文件用于临时保存端口信息
+            // match &*inner {
+            //     SocketInner::Tcp(tcp) => {
+            // let port = [addr.port.to_be_bytes(), 6380u16.to_be_bytes()].concat();
+            // write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap();
+            // error!("catch accept: {}", addr.port);
+            //     }
+            //     _ => {}
+            // }
 
             fd_table[new_fd] = Some(Arc::new(s));
             Ok(new_fd as isize)
@@ -144,10 +153,28 @@ pub fn syscall_connect(fd: usize, addr_buf: *const u8, _addr_len: usize) -> Sysc
     };
 
     let addr = unsafe { socket_address_from(addr_buf) };
-
     debug!("[connect()] socket {fd} connecting to {addr:?}");
+    let ans = socket.connect(addr);
 
-    match socket.connect(addr) {
+    // unsafe {
+    //     match &*socket.inner.lock() {
+    //         SocketInner::Tcp(tcp) => match tcp.local_addr() {
+    //             Ok(local_addr) => {
+    //                 let port = [
+    //                     local_addr.port().to_be_bytes(),
+    //                     socket_address_from(addr_buf).port.to_be_bytes(),
+    //                 ]
+    //                 .concat();
+    //                 write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap();
+    //                 error!("catch connect: {}", tcp.local_addr().unwrap().port());
+    //             }
+    //             _ => {}
+    //         },
+    //         _ => {}
+    //     }
+    // }
+
+    match ans {
         Ok(_) => Ok(0),
         Err(AxError::WouldBlock) => Err(SyscallError::EINPROGRESS),
         Err(AxError::Interrupted) => Err(SyscallError::EINTR),
@@ -268,7 +295,6 @@ pub fn syscall_sendto(
     } else {
         None
     };
-    info!("!@# addr: {addr:?}");
     let inner = socket.inner.lock();
     let send_result = match &*inner {
         SocketInner::Udp(s) => {
@@ -305,10 +331,7 @@ pub fn syscall_sendto(
     };
 
     match send_result {
-        Ok(len) => {
-            info!("[sendto()] socket {fd} sent {len} bytes to addr {:?}", addr);
-            Ok(len as isize)
-        }
+        Ok(len) => Ok(len as isize),
         Err(AxError::Interrupted) => Err(SyscallError::EINTR),
         Err(_) => Err(SyscallError::EPERM),
     }
@@ -356,7 +379,6 @@ pub fn syscall_recvfrom(
         return Err(SyscallError::EFAULT);
     }
     let buf = unsafe { from_raw_parts_mut(buf, len) };
-    info!("!@# recv addr: {:?}", socket.name().unwrap());
     match socket.recv_from(buf) {
         Ok((len, addr)) => {
             info!("socket {fd} recv {len} bytes from {addr:?}");

@@ -1,8 +1,351 @@
-recv addr: Endpoint { addr: Ipv4(Address([10, 0, 2, 15])), port: 49152 }
-bind addr: Endpoint { addr: Ipv4(Address([0, 0, 0, 0])), port: 6380 }?
-recv addr: Endpoint { addr: Ipv4(Address([10, 0, 2, 15])), port: 49153 }
-accept addr: Endpoint { addr: Ipv4(Address([10, 0, 2, 2])), port: 34650 }
-recv addr: Endpoint { addr: Ipv4(Address([10, 0, 2, 15])), port: 49154 }
-accept addr: Endpoint { addr: Ipv4(Address([10, 0, 2, 2])), port: 47954 }
-recv addr: Endpoint { addr: Ipv4(Address([10, 0, 2, 15])), port: 49155 }
-accept addr: Endpoint { addr: Ipv4(Address([10, 0, 2, 2])), port: 47964 }
+    [92;1mBuilding[0m App: oscomp, Arch: riscv64, Platform: riscv64-qemu-virt, App type: rust
+[37mcargo build[0m [90m--target riscv64gc-unknown-none-elf --target-dir /home/nan/Document/Starry_redis_homework/target --release  --manifest-path apps/oscomp/Cargo.toml --features "syscall_entry/log-level-error syscall_entry/img syscall_entry/signal syscall_entry/net syscall_entry/syscall_fs syscall_entry/syscall_mem syscall_entry/syscall_task syscall_entry/futex syscall_entry/signal syscall_entry/img syscall_entry/syscall_net syscall_entry/fd"[0m
+[37mrust-objcopy --binary-architecture=riscv64[0m [90mapps/oscomp/oscomp_riscv64-qemu-virt.elf --strip-all -O binary apps/oscomp/oscomp_riscv64-qemu-virt.bin[0m
+    [96;1mRunning[0m on qemu...
+[37mqemu-system-riscv64[0m [90m-m 1G -smp 1 -machine virt -bios default -kernel apps/oscomp/oscomp_riscv64-qemu-virt.bin -device virtio-blk-device,drive=disk0 -drive id=disk0,if=none,format=raw,file=disk.img -device virtio-net-device,netdev=net0 -netdev user,id=net0,hostfwd=tcp::6380-:6380,hostfwd=udp::6380-:6380 -object filter-dump,id=net0,netdev=net0,file=packets.pcap -nographic -D qemu.log -d in_asm,int,mmu,pcall,cpu_reset,guest_errors[0m
+
+OpenSBI v0.9
+   ____                    _____ ____ _____
+  / __ \                  / ____|  _ \_   _|
+ | |  | |_ __   ___ _ __ | (___ | |_) || |
+ | |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
+ | |__| | |_) |  __/ | | |____) | |_) || |_
+  \____/| .__/ \___|_| |_|_____/|____/_____|
+        | |
+        |_|
+
+Platform Name             : riscv-virtio,qemu
+Platform Features         : timer,mfdeleg
+Platform HART Count       : 1
+Firmware Base             : 0x80000000
+Firmware Size             : 100 KB
+Runtime SBI Version       : 0.2
+
+Domain0 Name              : root
+Domain0 Boot HART         : 0
+Domain0 HARTs             : 0*
+Domain0 Region00          : 0x0000000080000000-0x000000008001ffff ()
+Domain0 Region01          : 0x0000000000000000-0xffffffffffffffff (R,W,X)
+Domain0 Next Address      : 0x0000000080200000
+Domain0 Next Arg1         : 0x00000000bf000000
+Domain0 Next Mode         : S-mode
+Domain0 SysReset          : yes
+
+Boot HART ID              : 0
+Boot HART Domain          : root
+Boot HART ISA             : rv64imafdcsu
+Boot HART Features        : scounteren,mcounteren,time
+Boot HART PMP Count       : 16
+Boot HART PMP Granularity : 4
+Boot HART PMP Address Bits: 54
+Boot HART MHPM Count      : 0
+Boot HART MHPM Count      : 0
+Boot HART MIDELEG         : 0x0000000000000222
+Boot HART MEDELEG         : 0x000000000000b109
+
+       d8888                            .d88888b.   .d8888b.
+      d88888                           d88P" "Y88b d88P  Y88b
+     d88P888                           888     888 Y88b.
+    d88P 888 888d888  .d8888b  .d88b.  888     888  "Y888b.
+   d88P  888 888P"   d88P"    d8P  Y8b 888     888     "Y88b.
+  d88P   888 888     888      88888888 888     888       "888
+ d8888888888 888     Y88b.    Y8b.     Y88b. .d88P Y88b  d88P
+d88P     888 888      "Y8888P  "Y8888   "Y88888P"   "Y8888P"
+
+arch = riscv64
+platform = riscv64-qemu-virt
+target = riscv64gc-unknown-none-elf
+smp = 1
+build_mode = release
+log_level = error
+
+[37m[ 18.808545 0 fatfs::dir:140] [31mIs a directory[m
+[m[37m[ 18.942886 0 fatfs::dir:140] [31mIs a directory[m
+[m[37m[ 18.988647 0 fatfs::dir:140] [31mIs a directory[m
+[m[37m[ 19.198230 0 fatfs::dir:140] [31mIs a directory[m
+[m[37m[ 19.266984 0 fatfs::dir:140] [31mIs a directory[m
+[m[37m[ 35.383405 0:10 syscall_net::socket:566] [31m0.0.0.0:0[m
+[m[37m[ 41.062134 0:10 syscall_entry::trap:34] [31m12345 catch a connect[m
+[m[37m[ 41.123268 0:10 syscall_entry::trap:56] [31mlocal: Ok(10.0.2.15:49152), remote: Endpoint { addr: Ipv4(Address([127, 0, 0, 1])), port: 6380 }, 1[m
+[m7:C 01 Jan 1970 00:00:44.788 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+7:C 01 Jan 1970 00:00:44.942 # Redis version=7.0.4, bits=64, commit=00000000, modified=0, pid=7, just started
+7:C 01 Jan 1970 00:00:44.982 # Configuration loaded
+7:M 01 Jan 1970 00:00:46.882 * Increased maximum number of open files to 10032 (it was originally set to 1025).
+7:M 01 Jan 1970 00:00:46.958 * monotonic clock: POSIX clock_gettime
+[37m[ 48.535328 0:8 syscall_net::imp:19] [31m[socket()] Address Family not supported: 10[m
+[m7:M 01 Jan 1970 00:00:48.555 # Warning: Could not create server TCP listening socket ::*:6380: unable to bind socket, errno: 97
+[37m[ 50.847174 0:8 syscall_task::imp::utils:88] [31msetitimer ITimerVal {
+    it_interval: TimeVal {
+        sec: 0x0,
+        usec: 0x0,
+    },
+    it_value: TimeVal {
+        sec: 0x0,
+        usec: 0x0,
+    },
+}[m
+[m[37m[ 50.927015 0:8 syscall_task::imp::utils:105] [31minterval: 0x0, remained_ns: 0x0[m
+[m                _._                                                  
+           _.-``__ ''-._                                             
+      _.-``    `.  `_.  ''-._           Redis 7.0.4 (00000000/0) 64 bit
+  .-`` .-```.  ```\/    _.,_ ''-._                                  
+ (    '      ,       .-`  | `,    )     Running in standalone mode
+ |`-._`-...-` __...-.``-._|'` _.-'|     Port: 6380
+ |    `-._   `._    /     _.-'    |     PID: 7
+  `-._    `-._  `-./  _.-'    _.-'                                   
+ |`-._`-._    `-.__.-'    _.-'_.-'|                                  
+ |    `-._`-._        _.-'_.-'    |           https://redis.io       
+  `-._    `-._`-.__.-'_.-'    _.-'                                   
+ |`-._`-._    `-.__.-'    _.-'_.-'|                                  
+ |    `-._`-._        _.-'_.-'    |                                  
+  `-._    `-._`-.__.-'_.-'    _.-'                                   
+      `-._    `-.__.-'    _.-'                                       
+          `-._        _.-'                                           
+              `-.__.-'                                               
+
+[37m[ 51.415684 0:10 syscall_net::socket:566] [31m10.0.2.15:49152[m
+[m[37m[ 51.427605 0:10 syscall_entry::trap:34] [31m12345 catch a connect[m
+[m[37m[ 51.439167 0:10 syscall_entry::trap:56] [31mlocal: Ok(10.0.2.15:49152), remote: Endpoint { addr: Ipv4(Address([127, 0, 0, 1])), port: 6380 }, 2[m
+[m7:M 01 Jan 1970 00:00:51.734 # Server initialized
+7:M 01 Jan 1970 00:00:51.818 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+7:M 01 Jan 1970 00:00:59.348 * Ready to accept connections
+7:M 01 Jan 1970 00:00:59.591 - Accepted 10.0.2.2:32776
+PONG
+7:M 01 Jan 1970 00:01:01.481 - Client closed connection id=3 addr=10.0.2.2:32776 laddr=10.0.2.15:6380 fd=7 name= age=18 idle=0 flags=N db=0 sub=0 psub=0 ssub=0 multi=-1 qbuf=0 qbuf-free=16384 argv-mem=0 multi-mem=0 rbs=1024 rbp=7 obl=0 oll=0 omem=0 tot-mem=18166 events=r cmd=ping user=default redir=-1 resp=2
+[37m[ 63.057924 0:15 syscall_net::socket:566] [31m0.0.0.0:0[m
+[m[37m[ 63.303766 0:15 syscall_entry::trap:34] [31m12345 catch a connect[m
+[m[37m[ 63.316367 0:15 syscall_entry::trap:56] [31mlocal: Ok(10.0.2.15:49153), remote: Endpoint { addr: Ipv4(Address([127, 0, 0, 1])), port: 6380 }, 3[m
+[m[37m[ 63.352418 0:15 syscall_net::socket:566] [31m10.0.2.15:49153[m
+[m[37m[ 63.360965 0:15 syscall_entry::trap:34] [31m12345 catch a connect[m
+[m[37m[ 63.372605 0:15 syscall_entry::trap:56] [31mlocal: Ok(10.0.2.15:49153), remote: Endpoint { addr: Ipv4(Address([127, 0, 0, 1])), port: 6380 }, 4[m
+[m7:M 01 Jan 1970 00:01:03.554 - Accepted 10.0.2.2:32780
+# Server
+redis_version:7.0.4
+redis_git_sha1:00000000
+redis_git_dirty:0
+redis_build_id:5fa836af3336448a
+redis_mode:standalone
+os:YoimiyaOS 114 RISC-V 64 on SIFIVE FU740
+arch_bits:64
+monotonic_clock:POSIX clock_gettime
+multiplexing_api:epoll
+atomicvar_api:c11-builtin
+gcc_version:11.2.1
+process_id:7
+process_supervised:no
+run_id:84f678afb7faabfa3cdcf4fa2c5c48a99969efe4
+tcp_port:6380
+server_time_usec:63794547
+uptime_in_seconds:15
+uptime_in_days:0
+hz:10
+configured_hz:10
+lru_clock:63
+executable:/./redis-server
+config_file:/redis.conf
+io_threads_active:0
+
+# Clients
+connected_clients:1
+cluster_connections:0
+maxclients:10000
+client_recent_max_input_buffer:16398
+client_recent_max_output_buffer:0
+blocked_clients:0
+tracking_clients:0
+clients_in_timeout_table:0
+
+# Memory
+used_memory:1054679
+used_memory_human:1.01M
+used_memory_rss:0
+used_memory_rss_human:0B
+used_memory_peak:1054679
+used_memory_peak_human:1.01M
+used_memory_peak_perc:100.23%
+used_memory_overhead:993301
+used_memory_startup:993088
+used_memory_dataset:61378
+used_memory_dataset_perc:99.65%
+allocator_allocated:1018148
+allocator_active:18446744073709519872
+allocator_resident:18446744073709519872
+total_system_memory:0
+total_system_memory_human:0B
+used_memory_lua:31744
+used_memory_vm_eval:31744
+used_memory_lua_human:31.00K
+used_memory_scripts_eval:0
+number_of_cached_scripts:0
+number_of_functions:0
+number_of_libraries:0
+used_memory_vm_functions:32768
+used_memory_vm_total:64512
+used_memory_vm_total_human:63.00K
+used_memory_functions:213
+used_memory_scripts:213
+used_memory_scripts_human:213B
+maxmemory:0
+maxmemory_human:0B
+maxmemory_policy:noeviction
+allocator_frag_ratio:18117939953664.00
+allocator_frag_bytes:18446744073708501724
+allocator_rss_ratio:1.00
+allocator_rss_bytes:0
+rss_overhead_ratio:0.00
+rss_overhead_bytes:31744
+mem_fragmentation_ratio:0.00
+mem_fragmentation_bytes:-1018148
+mem_not_counted_for_evict:0
+mem_replication_backlog:0
+mem_total_replication_buffers:0
+mem_clients_slaves:0
+mem_clients_normal:0
+mem_cluster_links:0
+mem_aof_buffer:0
+mem_allocator:libc
+active_defrag_running:0
+lazyfree_pending_objects:0
+lazyfreed_objects:0
+
+# Persistence
+loading:0
+async_loading:0
+current_cow_peak:0
+current_cow_size:0
+current_cow_size_age:0
+current_fork_perc:0.00
+current_save_keys_processed:0
+current_save_keys_total:0
+rdb_changes_since_last_save:0
+rdb_bgsave_in_progress:0
+rdb_last_save_time:48
+rdb_last_bgsave_status:ok
+rdb_last_bgsave_time_sec:-1
+rdb_current_bgsave_time_sec:-1
+rdb_saves:0
+rdb_last_cow_size:0
+rdb_last_load_keys_expired:0
+rdb_last_load_keys_loaded:0
+aof_enabled:0
+aof_rewrite_in_progress:0
+aof_rewrite_scheduled:0
+aof_last_rewrite_time_sec:-1
+aof_current_rewrite_time_sec:-1
+aof_last_bgrewrite_status:ok
+aof_rewrites:0
+aof_rewrites_consecutive_failures:0
+aof_last_write_status:ok
+aof_last_cow_size:0
+module_fork_in_progress:0
+module_fork_last_cow_size:0
+
+# Stats
+total_connections_received:2
+total_commands_processed:1
+instantaneous_ops_per_sec:0
+total_net_input_bytes:28
+total_net_output_bytes:7
+total_net_repl_input_bytes:0
+total_net_repl_output_bytes:0
+instantaneous_input_kbps:0.00
+instantaneous_output_kbps:0.00
+instantaneous_input_repl_kbps:0.00
+instantaneous_output_repl_kbps:0.00
+rejected_connections:0
+sync_full:0
+sync_partial_ok:0
+sync_partial_err:0
+expired_keys:0
+expired_stale_perc:0.00
+expired_time_cap_reached_count:0
+expire_cycle_cpu_milliseconds:12
+evicted_keys:0
+evicted_clients:0
+total_eviction_exceeded_time:0
+current_eviction_exceeded_time:0
+keyspace_hits:0
+keyspace_misses:0
+pubsub_channels:0
+pubsub_patterns:0
+pubsubshard_channels:0
+latest_fork_usec:0
+total_forks:0
+migrate_cached_sockets:0
+slave_expires_tracked_keys:0
+active_defrag_hits:0
+active_defrag_misses:0
+active_defrag_key_hits:0
+active_defrag_key_misses:0
+total_active_defrag_time:0
+current_active_defrag_time:0
+tracking_total_keys:0
+tracking_total_items:0
+tracking_total_prefixes:0
+unexpected_error_replies:0
+total_error_replies:0
+dump_payload_sanitizations:0
+total_reads_processed:3
+total_writes_processed:1
+io_threaded_reads_processed:0
+io_threaded_writes_processed:0
+reply_buffer_shrinks:1
+reply_buffer_expands:0
+
+# Replication
+role:master
+connected_slaves:0
+master_failover_state:no-failover
+master_replid:4be0a219c44d3f4fe156da20d1ba965bde493c64
+master_replid2:0000000000000000000000000000000000000000
+master_repl_offset:0
+second_repl_offset:-1
+repl_backlog_active:0
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:0
+repl_backlog_histlen:0
+
+# CPU
+used_cpu_sys:4.188695
+used_cpu_user:60.313900
+used_cpu_sys_children:4.192393
+used_cpu_user_children:60.314587
+used_cpu_sys_main_thread:4.192603
+used_cpu_user_main_thread:60.316709
+
+# Modules
+
+# Errorstats
+
+# Cluster
+cluster_enabled:0
+
+# Keyspace
+7:M 01 Jan 1970 00:01:12.214 - Client closed connection id=4 addr=10.0.2.2:32780 laddr=10.0.2.15:6380 fd=7 name= age=4 idle=0 flags=N db=0 sub=0 psub=0 ssub=0 multi=-1 qbuf=0 qbuf-free=16384 argv-mem=0 multi-mem=0 rbs=4894 rbp=4893 obl=0 oll=0 omem=0 tot-mem=22036 events=r cmd=info user=default redir=-1 resp=2
+[37m[ 75.341848 0:17 syscall_net::socket:566] [31m0.0.0.0:0[m
+[m7:M 01 Jan 1970 00:01:15.494 - Accepted 10.0.2.2:32790
+[37m[ 75.673199 0:17 syscall_entry::trap:34] [31m12345 catch a connect[m
+[m[37m[ 75.761797 0:17 syscall_entry::trap:56] [31mlocal: Ok(10.0.2.15:49154), remote: Endpoint { addr: Ipv4(Address([127, 0, 0, 1])), port: 6380 }, 5[m
+[m[37m[ 75.862962 0:17 syscall_net::socket:566] [31m10.0.2.15:49154[m
+[m[37m[ 75.885730 0:17 syscall_entry::trap:34] [31m12345 catch a connect[m
+[m[37m[ 75.970225 0:17 syscall_entry::trap:56] [31mlocal: Ok(10.0.2.15:49154), remote: Endpoint { addr: Ipv4(Address([127, 0, 0, 1])), port: 6380 }, 6[m
+[mOK
+7:M 01 Jan 1970 00:01:18.807 - Client closed connection id=5 addr=10.0.2.2:32790 laddr=10.0.2.15:6380 fd=7 name= age=4 idle=0 flags=N db=0 sub=0 psub=0 ssub=0 multi=-1 qbuf=0 qbuf-free=16384 argv-mem=0 multi-mem=0 rbs=1024 rbp=5 obl=0 oll=0 omem=0 tot-mem=18166 events=r cmd=set user=default redir=-1 resp=2
+[37m[ 82.242129 0:19 syscall_net::socket:566] [31m0.0.0.0:0[m
+[m7:M 01 Jan 1970 00:01:22.396 - Accepted 10.0.2.2:32798
+[37m[ 82.545120 0:19 syscall_entry::trap:34] [31m12345 catch a connect[m
+[m[37m[ 82.582480 0:19 syscall_entry::trap:56] [31mlocal: Ok(10.0.2.15:49155), remote: Endpoint { addr: Ipv4(Address([127, 0, 0, 1])), port: 6380 }, 7[m
+[m[37m[ 82.691587 0:19 syscall_net::socket:566] [31m10.0.2.15:49155[m
+[m[37m[ 82.725738 0:19 syscall_entry::trap:34] [31m12345 catch a connect[m
+[m[37m[ 82.740545 0:19 syscall_entry::trap:56] [31mlocal: Ok(10.0.2.15:49155), remote: Endpoint { addr: Ipv4(Address([127, 0, 0, 1])), port: 6380 }, 8[m
+[m"good"
+[37m[ 84.268297 0:3 syscall_entry::test:453] [31mtotal built 8 tcp link(s)[m
+[m[37m[ 84.361074 0:3 syscall_entry::test:463] [31mtcp link src_port:6380 dst_port:0[m
+[m[37m[ 84.385763 0:3 syscall_entry::test:463] [31mtcp link src_port:6380 dst_port:49152[m
+[m[37m[ 84.422064 0:3 syscall_entry::test:463] [31mtcp link src_port:6380 dst_port:0[m
+[m[37m[ 84.450252 0:3 syscall_entry::test:463] [31mtcp link src_port:6380 dst_port:49153[m
+[m[37m[ 84.486271 0:3 syscall_entry::test:463] [31mtcp link src_port:6380 dst_port:0[m
+[m[37m[ 84.518789 0:3 syscall_entry::test:463] [31mtcp link src_port:6380 dst_port:49154[m
+[m[37m[ 84.564478 0:3 syscall_entry::test:463] [31mtcp link src_port:6380 dst_port:0[m
+[m[37m[ 84.620896 0:3 syscall_entry::test:463] [31mtcp link src_port:6380 dst_port:49155[m
+[m
