@@ -439,20 +439,28 @@ impl TestResult {
         let buf = read("/socketlog").unwrap();
         let mut port = Vec::new();
         assert!(buf.len() % 4 == 0);
-        error!("total built {} tcp link(s)", buf.len() / 4);
         for chunk in buf.chunks(2) {
             let mut array = [0; 2];
             array.copy_from_slice(chunk);
             port.push(u16::from_be_bytes(array));
         }
+        let mut last_port = 999u16;
+        let mut true_port = Vec::new();
         for chunk in port.chunks(2).into_iter() {
             let [local, remote] = chunk else {
                 panic!("not enough bytes");
             };
-            if local != &0 {
-                error!("tcp link src_port:{local} dst_port:{remote}")
-            };
+            if *local != last_port {
+                last_port = *local;
+                true_port.push((*local, *remote));
+            }
         }
+        error!("total built {} tcp link(s)", true_port.len());
+        true_port.into_iter().for_each(|(local, remote)| {
+            if local != 0 {
+                error!("local port: {}, remote port: {}", local, remote);
+            }
+        });
         error!(
             " --------------- all test ended, passed {} / {} --------------- ",
             self.accepted, self.sum
