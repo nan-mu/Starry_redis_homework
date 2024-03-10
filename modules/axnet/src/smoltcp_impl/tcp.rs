@@ -123,7 +123,16 @@ impl TcpSocket {
     ///
     /// The local port is generated automatically.
     pub fn connect(&self, remote_addr: SocketAddr) -> AxResult {
-        
+
+        let port = [
+                match self.local_addr() {
+                    Ok(addr) => addr.port().to_be_bytes(),
+                    Err(_) => 0u16.to_be_bytes(),
+                },
+                (&remote_addr).port().to_be_bytes(),
+            ]
+            .concat();
+        write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap();
 
         self.update_state(STATE_CLOSED, STATE_CONNECTING, || {
             // SAFETY: no other threads can read or write these fields.
@@ -150,7 +159,7 @@ impl TcpSocket {
                                 ax_err!(ConnectionRefused, "socket connect() failed")
                             }
                         })?;
-                    Ok((
+                    AxResult::Ok((
                         socket.local_endpoint().unwrap(),
                         socket.remote_endpoint().unwrap(),
                     ))
