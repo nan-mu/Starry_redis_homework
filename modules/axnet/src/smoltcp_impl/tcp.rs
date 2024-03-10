@@ -225,7 +225,7 @@ impl TcpSocket {
                 (*self.local_addr.get()).port = bound_endpoint.port;
             }
             LISTEN_TABLE.listen(bound_endpoint)?;
-            debug!("TCP socket listening on {}", bound_endpoint);
+            error!("TCP socket listening on {}", bound_endpoint);
             Ok(())
         }).unwrap_or(Ok(())) // ignore simultaneous `listen`s.
     }
@@ -299,17 +299,6 @@ impl TcpSocket {
     /// It won't change TCP state.
     /// It won't affect unconnected sockets (listener).
     pub fn close(&mut self) {
-        match self.peer_addr() {
-            Ok(peer_addr) => {
-                let local_port = match self.local_addr() {
-                    Ok(local_addr) => local_addr.port(),
-                    Err(_) => 0,
-                };
-                let port = [local_port.to_be_bytes(), peer_addr.port().to_be_bytes()].concat();
-                write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap()
-            }
-            _ => {}
-        }
         let handle = match unsafe { self.handle.get().read() } {
             Some(h) => h,
             None => {
@@ -322,17 +311,6 @@ impl TcpSocket {
 
     /// Receives data from the socket, stores it in the given buffer.
     pub fn recv(&self, buf: &mut [u8]) -> AxResult<usize> {
-        match self.peer_addr() {
-            Ok(peer_addr) => {
-                let local_port = match self.local_addr() {
-                    Ok(local_addr) => local_addr.port(),
-                    Err(_) => 0,
-                };
-                let port = [local_port.to_be_bytes(), peer_addr.port().to_be_bytes()].concat();
-                write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap()
-            }
-            _ => {}
-        }
         if self.is_connecting() {
             return Err(AxError::WouldBlock);
         } else if !self.is_connected() {
@@ -685,6 +663,7 @@ fn get_ephemeral_port() -> AxResult<u16> {
             *curr += 1;
         }
         if LISTEN_TABLE.can_listen(port) {
+            error!("分配端口：{port}");
             return Ok(port);
         }
         tries += 1;
