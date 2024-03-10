@@ -5,6 +5,7 @@ use core::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use axerrno::{ax_err, ax_err_type, AxError, AxResult};
 use axhal::time::current_ticks;
 use axio::{PollState, Read, Write};
+use axfs::api::{read, write};
 use axsync::Mutex;
 
 use axtask::yield_now;
@@ -122,6 +123,8 @@ impl TcpSocket {
     ///
     /// The local port is generated automatically.
     pub fn connect(&self, remote_addr: SocketAddr) -> AxResult {
+        
+
         self.update_state(STATE_CLOSED, STATE_CONNECTING, || {
             // SAFETY: no other threads can read or write these fields.
             let handle = unsafe { self.handle.get().read() }
