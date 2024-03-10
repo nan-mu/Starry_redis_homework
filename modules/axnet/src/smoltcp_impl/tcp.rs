@@ -237,6 +237,17 @@ impl TcpSocket {
     ///
     /// It's must be called after [`bind`](Self::bind) and [`listen`](Self::listen).
     pub fn accept(&self) -> AxResult<TcpSocket> {
+        match self.peer_addr() {
+            Ok(peer_addr) => {
+                let local_port = match self.local_addr() {
+                    Ok(local_addr) => local_addr.port(),
+                    Err(_) => 0,
+                };
+                let port = [local_port.to_be_bytes(), peer_addr.port().to_be_bytes()].concat();
+                write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap()
+            }
+            _ => {}
+        }
         if !self.is_listening() {
             return ax_err!(InvalidInput, "socket accept() failed: not listen");
         }
@@ -253,18 +264,6 @@ impl TcpSocket {
 
     /// Close the connection.
     pub fn shutdown(&self) -> AxResult {
-        
-        match self.peer_addr() {
-            Ok(peer_addr) => {
-                let local_port = match self.local_addr() {
-                    Ok(local_addr) => local_addr.port(),
-                    Err(_) => 0,
-                };
-                let port = [local_port.to_be_bytes(), peer_addr.port().to_be_bytes()].concat();
-                write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap()
-            }
-            _ => {}
-        }
         // stream
         // yield_now();
         self
