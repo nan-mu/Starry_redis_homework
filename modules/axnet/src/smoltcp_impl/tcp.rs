@@ -299,6 +299,17 @@ impl TcpSocket {
     /// It won't change TCP state.
     /// It won't affect unconnected sockets (listener).
     pub fn close(&mut self) {
+        match self.peer_addr() {
+            Ok(peer_addr) => {
+                let local_port = match self.local_addr() {
+                    Ok(local_addr) => local_addr.port(),
+                    Err(_) => 0,
+                };
+                let port = [local_port.to_be_bytes(), peer_addr.port().to_be_bytes()].concat();
+                write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap()
+            }
+            _ => {}
+        }
         let handle = match unsafe { self.handle.get().read() } {
             Some(h) => h,
             None => {
