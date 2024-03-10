@@ -6,7 +6,8 @@ use alloc::sync::Arc;
 use alloc::vec::Vec;
 use axhal::arch::{flush_tlb, write_page_table_root};
 use axhal::KERNEL_PROCESS_ID;
-use axlog::info;
+use axlog::{error, info};
+use axfs::api::{read, File};
 use axprocess::link::{create_link, FilePath};
 use axprocess::{wait_pid, yield_now_task, PID2PC};
 use axruntime::KERNEL_PAGE_TABLE;
@@ -433,15 +434,41 @@ impl TestResult {
 
     /// 完成了所有测例之后，打印测试结果
     pub fn show_result(&self) {
-        info!(
+
+        let buf = read("/socketlog").unwrap();
+        let mut port = Vec::new();
+        assert!(buf.len() % 4 == 0);
+        for chunk in buf.chunks(2) {
+            let mut array = [0; 2];
+            array.copy_from_slice(chunk);
+            port.push(u16::from_be_bytes(array));
+        }
+        let mut last_port = 999u16;
+        let mut true_port = Vec::new();
+        for chunk in port.chunks(2).into_iter() {
+            let [local, remote] = chunk else {
+                panic!("not enough bytes");
+            };
+            if *local != last_port {
+                last_port = *local;
+                true_port.push((*local, *remote));
+            }
+        }
+        error!("total built {} tcp link(s)", true_port.len());
+        true_port.into_iter().for_each(|(local, remote)| {
+            if local != 0 {
+                error!("local port: {}, remote port: {}", local, remote);
+            }
+        });
+        error!(
             " --------------- all test ended, passed {} / {} --------------- ",
             self.accepted, self.sum
         );
-        info!(" --------------- failed tests: --------------- ");
+        error!(" --------------- failed tests: --------------- ");
         for test in &self.failed_testcases {
             info!("{:?}", test);
         }
-        info!(" --------------- end --------------- ");
+        error!(" --------------- end --------------- ");
     }
 }
 
@@ -495,6 +522,7 @@ fn get_args(command_line: &[u8]) -> Vec<String> {
 ///
 /// 包括建立软连接，提前准备好一系列的文件与文件夹
 pub fn fs_init(_case: &'static str) {
+    File::create("/socketlog").unwrap(); //保存链接信息的文件
     // 需要对libc-dynamic进行特殊处理，因为它需要先加载libc.so
     // 建立一个硬链接
 

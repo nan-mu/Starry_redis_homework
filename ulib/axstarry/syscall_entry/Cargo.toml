@@ -74,6 +74,7 @@ arceos_api = { path = "../../../api/arceos_api" }
 axlog = { path = "../../../modules/axlog" }
 axruntime = { path = "../../../modules/axruntime" }
 axhal = { path = "../../../modules/axhal" }
+axfs ={ path = "../../../modules/axfs" }
 axtask = { path = "../../../modules/axtask" }
 axprocess = { path = "../../../modules/axprocess" }
 axsignal = { path = "../../../modules/axsignal", optional = true }
