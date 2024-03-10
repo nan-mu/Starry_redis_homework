@@ -77,7 +77,7 @@ impl TcpSocket {
     pub fn local_addr(&self) -> AxResult<SocketAddr> {
         // 为了通过测例，已经`bind`但未`listen`的socket也可以返回地址
         match self.get_state() {
-            STATE_CONNECTED | STATE_LISTENING | STATE_CLOSED | 1 | 2 => {
+            STATE_CONNECTED | STATE_LISTENING | STATE_CLOSED => {
                 Ok(into_core_sockaddr(unsafe { self.local_addr.get().read() }))
             }
             _ => Err(AxError::NotConnected),
@@ -149,14 +149,14 @@ impl TcpSocket {
                         socket.remote_endpoint().unwrap(),
                     ))
                 })?;
-            if (&remote_endpoint).port == 6380 {
-                let port = [
-                    (&local_endpoint).port.to_be_bytes(),
-                    (&remote_endpoint).port.to_be_bytes(),
-                ]
-                .concat();
-                write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap();
-            }
+            // if (&remote_endpoint).port == 6381 {
+            let port = [
+                (&local_endpoint).port.to_be_bytes(),
+                (&remote_endpoint).port.to_be_bytes(),
+            ]
+            .concat();
+            write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap();
+            // }
             unsafe {
                 // SAFETY: no other threads can read or write these fields as we
                 // have changed the state to `BUSY`.
