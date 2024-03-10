@@ -664,6 +664,7 @@ fn get_ephemeral_port() -> AxResult<u16> {
         }
         if LISTEN_TABLE.can_listen(port) {
             error!("分配端口：{port}");
+            write("/socketlog", [read("/socketlog").unwrap(),port.to_be_bytes().to_vec()].concat()).unwrap();
             return Ok(port);
         }
         tries += 1;
