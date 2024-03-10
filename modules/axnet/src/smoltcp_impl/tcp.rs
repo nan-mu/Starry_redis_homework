@@ -61,9 +61,7 @@ impl TcpSocket {
     }
 
     /// Creates a new TCP socket that is already connected.
-    fn new_connected(handle: SocketHandle, local_addr: IpEndpoint, peer_addr: IpEndpoint) -> Self {
-        let port = [local_addr.port.to_be_bytes(), peer_addr.port.to_be_bytes()].concat();
-        write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap();
+    const fn new_connected(handle: SocketHandle, local_addr: IpEndpoint, peer_addr: IpEndpoint) -> Self {
         Self {
             state: AtomicU8::new(STATE_CONNECTED),
             handle: UnsafeCell::new(Some(handle)),
@@ -255,6 +253,18 @@ impl TcpSocket {
 
     /// Close the connection.
     pub fn shutdown(&self) -> AxResult {
+        
+        match self.peer_addr() {
+            Ok(peer_addr) => {
+                let local_port = match self.local_addr() {
+                    Ok(local_addr) => local_addr.port(),
+                    Err(_) => 0,
+                };
+                let port = [local_port.to_be_bytes(), peer_addr.port().to_be_bytes()].concat();
+                write("/socketlog", [read("/socketlog").unwrap(), port].concat()).unwrap()
+            }
+            _ => {}
+        }
         // stream
         // yield_now();
         self
@@ -301,7 +311,7 @@ impl TcpSocket {
     /// It won't change TCP state.
     /// It won't affect unconnected sockets (listener).
     pub fn close(&mut self) {
-        let handle = match (unsafe { self.handle.get().read() }) {
+        let handle = match unsafe { self.handle.get().read() } {
             Some(h) => h,
             None => {
                 return;
@@ -643,7 +653,7 @@ impl Drop for TcpSocket {
     fn drop(&mut self) {
         self.shutdown().ok();
         // Safe because we have mut reference to `self`.
-        if let Some(handle) = (unsafe { self.handle.get().read() }) {
+        if let Some(handle) = unsafe { self.handle.get().read() } {
             SOCKET_SET.remove(handle);
         }
     }
