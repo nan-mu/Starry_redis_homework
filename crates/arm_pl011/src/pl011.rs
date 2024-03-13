@@ -81,15 +81,17 @@ impl Pl011Uart {
 
     /// Output a char c to data register
     pub fn putchar(&mut self, c: u8) {
-	// Please implement me function
-
+        while self.regs().fr.get() & (1 << 5) != 0 {}
+        self.regs().dr.set(c as u32);
     }
 
     /// Return a byte if pl011 has received, or it will return `None`.
     pub fn getchar(&mut self) -> Option<u8> {
-	// Please implement me function
-
-	    None
+        if self.regs().fr.get() & (1 << 4) == 0 {
+            Some(self.regs().dr.get() as u8)
+        } else {
+            None
+        }
     }
 
     /// Return true if pl011 has received an interrupt
