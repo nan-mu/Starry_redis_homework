@@ -52,7 +52,7 @@ members = [
 
     "api/axfeat",
     "api/arceos_api",
-    
+
     "api/arceos_posix_api",
 
     "ulib/axstd",
@@ -63,7 +63,7 @@ members = [
     "ulib/axstarry/syscall_utils",
     "ulib/axstarry/syscall_task",
     "ulib/axstarry/syscall_entry",
-    "apps/display",
+    # "apps/display",
     "apps/exception",
     "apps/helloworld",
     "apps/memtest",
@@ -84,7 +84,7 @@ members = [
     "apps/ostrain/filewrite",
     "apps/ostrain/taskyield",
     "apps/ostrain/task_single_yield",
-    "apps/ostrain/danger_access"
+    "apps/ostrain/danger_access",
 ]
 
 [profile.release]
